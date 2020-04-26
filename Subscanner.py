@@ -9,12 +9,13 @@ import os
 from requests.packages.urllib3.contrib import pyopenssl as reqs
 from sublister import sublist3r
 from services import Fb, Binaryedge, CertSpotter, Bufferdns, ThreatMiner, HackerTarget, PassiveTotal
+from axfr import zone_transfer_axfr, get_authoritative_ns
 import pandas as pd
 
 global q, wildcards
 
 q = Queue()
-
+'''
 #attempt transfer zone
 def axfr(domain):
     try:
@@ -35,7 +36,7 @@ def axfr(domain):
         for subdomains in results:
             print(subdomains.to_text())
         return 1
-
+'''
 
 #extract subdomain names from ssl/tls certificate
 def https_cert_subject_alt_names(host, port):
@@ -120,8 +121,9 @@ if __name__ == '__main__':
 
     print("[-] Enumerating subdomains now for %s" % domain)
     startTime = time.time()
-
-    if(axfr(domain=domain)==0):
+    report_list = []
+    report_list = zone_transfer_axfr.axfr(domain)
+    if not report_list:
         wildcards = []
         systime = str(int(time.time()))
         try:
@@ -194,4 +196,4 @@ if __name__ == '__main__':
         print('#####################################################################################')
         print('[-] %d unique subdomains discovered in %d seconds' % (counter_unique, enumerationTime))
         report_list =  get_active_IPs(sublist)
-        return_report(report_list, domain)
+    return_report(report_list, domain)
